@@ -1,0 +1,3 @@
+S:\Porn\Projects\RestaurantSQLAPI\obj\Debug\RestaurantSQLAPI.njsprojAssemblyReference.cache
+S:\Porn\Projects\RestaurantSQLAPI\bin\Microsoft.NodejsTools.WebRole.dll
+S:\Porn\Projects\RestaurantSQLAPI\obj\Debug\RestaurantSQLAPI.njsproj.CoreCompileInputs.cache

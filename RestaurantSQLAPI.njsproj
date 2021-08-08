@@ -1,0 +1,126 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">14.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+    <Name>RestaurantSQLAPI</Name>
+    <RootNamespace>RestaurantSQLAPI</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>783e4e84-0d07-4b3c-8a89-3099b4412734</ProjectGuid>
+    <ProjectHome>.</ProjectHome>
+    <StartupFile>app.js</StartupFile>
+    <StartWebBrowser>False</StartWebBrowser>
+    <SearchPath>
+    </SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
+    <StartWebBrowser>false</StartWebBrowser>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="app.js" />
+    <Content Include="db.js">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="package.json" />
+    <Content Include="public\10_duo_season_salmon_puff.jpg" />
+    <Content Include="public\11_pumpkin_sauce_fish.jpg" />
+    <Content Include="public\12_curry_mee.jpg" />
+    <Content Include="public\13_lui_cha.jpg" />
+    <Content Include="public\14_cauliflower_fettucine.jpg" />
+    <Content Include="public\15_garden_aglio_olio.jpg" />
+    <Content Include="public\16_medifoods_fusion_spaghetti.jpg" />
+    <Content Include="public\17_spicy_aglio_olio.jpg" />
+    <Content Include="public\18_spaghetti_bolognese.jpg" />
+    <Content Include="public\19_hawaiian_pizza.jpg" />
+    <Content Include="public\1_classic_rendang.jpg" />
+    <Content Include="public\20_margherita_pizza.jpg" />
+    <Content Include="public\21_mushroom_pizza.jpg" />
+    <Content Include="public\22_egg_mayo.jpg" />
+    <Content Include="public\23_hummus_platter.jpg" />
+    <Content Include="public\24_lentil_burger.jpg" />
+    <Content Include="public\25_japanese_charcoal_soba.jpg" />
+    <Content Include="public\26_black_pepper_udon.jpg" />
+    <Content Include="public\27_cantonese_style_mee_sua.jpg" />
+    <Content Include="public\28_kwai_fa_mee.jpg" />
+    <Content Include="public\29_mf_special_fried_rice.jpg" />
+    <Content Include="public\2_curry_chic.jpg" />
+    <Content Include="public\30_bittergourd_meehun.jpg" />
+    <Content Include="public\31_japanese_ramen.jpg" />
+    <Content Include="public\33_porridge_nonveg.jpg" />
+    <Content Include="public\34_nasi_lemak_veg.jpg" />
+    <Content Include="public\36_mf_hokkien_vegetarian_fried_meehoon.jpg" />
+    <Content Include="public\38_mf_rice.jpg" />
+    <Content Include="public\3_herbal_steamed_chic.jpg" />
+    <Content Include="public\4_roasted_quarter_chicken_with_special_sauces.jpg" />
+    <Content Include="public\5_ginger_vegetarian_fish.jpg" />
+    <Content Include="public\6_kung_po_mushroom_tofu.jpg" />
+    <Content Include="public\7_pumpkin_luo_han_zhai.jpg" />
+    <Content Include="public\8_sweet_sour_cranberry_monkey_head_mushroom.jpg" />
+    <Content Include="public\9_asam_salmon_fish_head.jpg" />
+    <Content Include="public\a1_thai_style_salad.jpg" />
+    <Content Include="public\a2_sesame_ball_peanut.jpg" />
+    <Content Include="public\a3_potato_ball.jpg" />
+    <Content Include="public\a4_caramelised_sunflower_seeds.jpg" />
+    <Content Include="public\a5_sour_and_spicy_tofu.jpg" />
+    <Content Include="public\d10_fatt_ko.jpg" />
+    <Content Include="public\d11_three_layer_cake.jpg" />
+    <Content Include="public\d1_onde_onde.jpg" />
+    <Content Include="public\d2_chai_kuih.jpg" />
+    <Content Include="public\d5_yam_cake.jpg" />
+    <Content Include="public\d6_radish_cake.jpg" />
+    <Content Include="public\d7_pumpkin_cake.jpg" />
+    <Content Include="public\d8_d9_angku.jpg" />
+    <Content Include="public\farm-cover.jpg" />
+    <Content Include="public\menu_ch.png" />
+    <Content Include="public\menu_chinese.png" />
+    <Content Include="public\menu_eastern_soup.png" />
+    <Content Include="public\menu_finger_food.png" />
+    <Content Include="public\menu_fish.png" />
+    <Content Include="public\menu_medifoods_delights.png" />
+    <Content Include="public\menu_pasta.png" />
+    <Content Include="public\menu_pizza.png" />
+    <Content Include="public\menu_sandwiches.png" />
+    <Content Include="public\menu_snacks.png" />
+    <Content Include="public\menu_western_soup.png" />
+    <Content Include="public\p1_ginger_pao.jpg" />
+    <Content Include="public\p2_coconut_pao.jpg" />
+    <Content Include="public\p3_red_bean_pao.jpg" />
+    <Content Include="public\p4_char_siew_pao.jpg" />
+    <Content Include="public\p5_chai_pao.jpg" />
+    <Content Include="public\restaurant_a.jpg" />
+    <Content Include="public\restaurant_b.jpg" />
+    <Content Include="public\restaurant_c.jpg" />
+    <Content Include="public\restaurant_d.jpg" />
+    <Content Include="public\restaurant_e.jpg" />
+    <Content Include="public\restaurant_f.jpg" />
+    <Content Include="public\restaurant_g.jpg" />
+    <Content Include="public\s1_minestrone_western_soup.jpg" />
+    <Content Include="public\s2_mf_garden_blend_western_soup.jpg" />
+    <Content Include="public\s3_mushroom_soup_western_soup.jpg" />
+    <Content Include="public\s4_pumpkin_soup_western_soup.jpg" />
+    <Content Include="public\s5_lotus_chinese_soup.jpg" />
+    <Content Include="public\s6_old_cucumber_chinese_soup.jpg" />
+    <Content Include="public\s7_bur_dock_chinese_soup.jpg" />
+    <Content Include="public\s8_abc_chinese_soup.jpg" />
+    <Content Include="README.md" />
+    <Content Include="routes\index.js">
+      <SubType>Code</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="routes\" />
+    <Folder Include="public\" />
+  </ItemGroup>
+  <Import Project="$(VSToolsPath)\Node.js Tools\Microsoft.NodejsToolsV2.targets" />
+</Project>
