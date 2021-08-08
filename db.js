@@ -10,6 +10,7 @@ const poolPromise = new sql.ConnectionPool(config)
   .connect()
   .then((pool) => {
     console.log('Connected to MSSQL');
+    alert('connected to mssql');
     return pool;
   })
   .catch((err) =>
