@@ -3,7 +3,10 @@ var config = {
   user: 'sensei',
   password: '?Churcher1234/',
   server: 'sensei.database.windows.net',
-  database: 'MyRestaurant',
+  options: {
+    encrypt: true,
+    database: 'MyRestaurant',
+  },
 };
 
 const poolPromise = new sql.ConnectionPool(config)
