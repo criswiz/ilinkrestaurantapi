@@ -1,8 +1,8 @@
 const sql = require('mssql');
 var config = {
-  user: 'sa',
-  password: '?churcher/',
-  server: 'SENSEI',
+  user: 'sensei',
+  password: '?Churcher1234/',
+  server: 'sensei.database.windows.net',
   database: 'MyRestaurant',
 };
 
