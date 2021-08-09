@@ -4,13 +4,16 @@ var config = {
   password: '?Churcher1234/',
   server: 'sensei.database.windows.net',
   database: 'MyRestaurant',
+  options: {
+    // If you are on Microsoft Azure, you need encryption:
+    encrypt: true,
+  },
 };
 
 const poolPromise = new sql.ConnectionPool(config)
   .connect()
   .then((pool) => {
     console.log('Connected to MSSQL');
-    alert('connected to mssql');
     return pool;
   })
   .catch((err) =>
