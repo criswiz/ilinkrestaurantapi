@@ -9,9 +9,10 @@ var routes = require('./routes/index');
 
 var publicDir = __dirname + '/public';
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 app.use(express.static(publicDir));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use('/', routes);
 
