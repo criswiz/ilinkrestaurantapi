@@ -3,11 +3,7 @@ var config = {
   user: 'sensei',
   password: '?Churcher1234/',
   server: 'sensei.database.windows.net',
-  options: {
-    // If you are on Microsoft Azure, you need encryption:
-    encrypt: true,
-    database: 'MyRestaurant',
-  },
+  database: 'MyRestaurant',
 };
 
 const poolPromise = new sql.ConnectionPool(config)
