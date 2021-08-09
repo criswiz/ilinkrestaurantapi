@@ -14,7 +14,6 @@ router.get('/', function (req, res) {
 
 //USER TABLE
 //POST/GET
-
 router.get('/user', async (req, res, next) => {
   console.log(req.query);
   if (req.query.key != API_KEY) {
