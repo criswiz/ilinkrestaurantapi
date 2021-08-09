@@ -4,10 +4,11 @@
   "description": "RestaurantSQLAPI",
   "main": "app.js",
   "author": {
-    "name": ""
+    "name": "Sensei"
   },
+  "license": "ISC",
   "repository": {
-    "type":"git",
+    "type": "git",
     "url": "https://github.com/criswiz/ilinkrestaurantapi.git"
   },
   "dependencies": {
