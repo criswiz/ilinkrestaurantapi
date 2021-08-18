@@ -469,14 +469,61 @@ router.get('/order', async (req, res, next) => {
       res.send(JSON.stringify({ success: false, message: 'Wrong API key' }));
     } else {
       var orderfbid = req.query.orderfbid;
+      var startIndex = req.query.from;
+      var endIndex = req.query.to;
+      if (orderfbid != null) {
+        try {
+          if (startIndex == null) startIndex = 0; //if user does not submit anything the default is 0
+          if (endIndex == null) endIndex = 10; //
+
+          var pool = await poolPromise;
+          var queryResult = await pool
+            .request()
+            .input('OrderFBID', sql.NVarChar, orderfbid)
+            .input('StartIndex', sql.Int, startIndex)
+            .input('EndIndex', sql.Int, endIndex)
+            .query(
+              'Select * from (Select ROW_NUMBER() OVER(ORDER BY orderId DESC) AS RowNum, orderId,orderFbid,orderPhone,orderName,orderAddress,orderStatus,orderDate,restaurantId,transactionId,cod,totalPrice,numOfItem From [Order] Where orderfbid=@orderfbid ORDER BY orderId DESC AND numOfItem > 0) As RowConstrainedResult WHERE RowNum >= @StartIndex AND RowNum <= @EndIndex ORDER BY orderId DESC'
+            );
+
+          if (queryResult.recordset.lenght > 0) {
+            res.send(JSON.stringify({ success: false, message: 'Empty' }));
+          } else {
+            res.send(
+              JSON.stringify({ success: true, message: queryResult.recordset })
+            );
+          }
+        } catch (error) {
+          res.status(500);
+          res.send(JSON.stringify({ success: false, message: error.message }));
+        }
+      } else {
+        res.send(
+          JSON.stringify({
+            success: false,
+            message: 'Missing Order Fbid in query',
+          })
+        );
+      }
+    }
+  }
+});
+
+router.get('/maxorder', async (req, res, next) => {
+  {
+    console.log(req.query);
+    if (req.query.key != API_KEY) {
+      res.send(JSON.stringify({ success: false, message: 'Wrong API key' }));
+    } else {
+      var orderfbid = req.query.orderfbid;
       if (orderfbid != null) {
         try {
           var pool = await poolPromise;
           var queryResult = await pool
             .request()
-            .input('orderfbid', sql.NVarChar, orderfbid)
+            .input('OrderFBID', sql.NVarChar, orderfbid)
             .query(
-              'Select orderId,orderFbid,orderPhone,orderName,orderAddress,orderStatus,orderDate,restaurantId,transactionId,cod,totalPrice,numOfItem From [Order] Where orderfbid=@orderfbid '
+              'Select MAX(RowNum) as maxRowNum from (Select ROW_NUMBER() OVER(ORDER BY orderId DESC) AS RowNum, orderId,orderFbid,orderPhone,orderName,orderAddress,orderStatus,orderDate,restaurantId,transactionId,cod,totalPrice,numOfItem From [Order] Where orderFBID=@orderFBID AND numOfItem > 0) AS RowConstrainedResult'
             );
 
           if (queryResult.recordset.lenght > 0) {
