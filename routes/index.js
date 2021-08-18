@@ -483,7 +483,7 @@ router.get('/order', async (req, res, next) => {
             .input('StartIndex', sql.Int, startIndex)
             .input('EndIndex', sql.Int, endIndex)
             .query(
-              'Select * from (Select ROW_NUMBER() OVER(ORDER BY orderId DESC) AS RowNum, orderId,orderFbid,orderPhone,orderName,orderAddress,orderStatus,orderDate,restaurantId,transactionId,cod,totalPrice,numOfItem From [Order]'
+              'Select * from (Select ROW_NUMBER() OVER(ORDER BY orderId DESC) AS RowNum, orderId,orderFbid,orderPhone,orderName,orderAddress,orderStatus,orderDate,restaurantId,transactionId,cod,totalPrice,numOfItem From [Order] Where orderFBID=@orderFBID AND numOfItem > 0) AS RowConstrainedResult WHERE RowNum >= @StartIndex AND RowNum <= @EndIndex ORDER BY orderId DESC'
             );
 
           if (queryResult.recordset.lenght > 0) {
@@ -496,7 +496,6 @@ router.get('/order', async (req, res, next) => {
         } catch (error) {
           res.status(500);
           res.send(JSON.stringify({ success: false, message: error.message }));
-          console.log(error.message);
         }
       } else {
         res.send(
