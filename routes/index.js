@@ -63,7 +63,7 @@ router.post('/token', async (req, res, next) => {
           .input('TOKEN', sql.NVarChar, token)
           .query(
             'IF EXISTS(SELECT * FROM [Token] WHERE FBID=@FBID)' +
-              ' UPDATE [User] SET Token=@TOKEN WHERE FBID=@FBID' +
+              ' UPDATE [Token] SET Token=@TOKEN WHERE FBID=@FBID' +
               ' ELSE' +
               ' INSERT INTO [Token](FBID,Token) OUTPUT Inserted.FBID,Inserted.Token' +
               ' VALUES(@FBID,@TOKEN)'
