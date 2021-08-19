@@ -12,6 +12,164 @@ router.get('/', function (req, res) {
   res.end('API RUNNING');
 });
 
+//TOKEN TABLE
+//POST/GET
+router.get('/token', async (req, res, next) => {
+  console.log(req.query);
+  if (req.query.key != API_KEY) {
+    res.send(JSON.stringify({ success: false, message: 'Wrong API key' }));
+  } else {
+    var fbid = req.query.fbid;
+    if (fbid != null) {
+      try {
+        const pool = await poolPromise;
+        const queryResult = await pool
+          .request()
+          .input('FBID', sql.NVarChar, fbid)
+          .query('SELECT fbid,token FROM [Token] where fbid=@FBID');
+        if (queryResult.recordset.lenght > 0) {
+          res.send(JSON.stringify({ success: false, message: 'Empty' }));
+        } else {
+          res.send(
+            JSON.stringify({ success: true, result: queryResult.recordset })
+          );
+        }
+      } catch (err) {
+        res.status(500); // Internal server error
+        res.send(JSON.stringify({ success: false, message: err.message }));
+      }
+    } else {
+      res.send(
+        JSON.stringify({ success: false, message: 'Missing fbid in query' })
+      );
+    }
+  }
+});
+
+router.post('/token', async (req, res, next) => {
+  console.log(req.body);
+  if (req.body.key != API_KEY) {
+    res.send(JSON.stringify({ success: false, message: 'Wrong API Key' }));
+  } else {
+    var fbid = req.body.fbid;
+    var token = req.body.token;
+
+    if (fbid != null) {
+      try {
+        const pool = await poolPromise;
+        const queryResult = await pool
+          .request()
+          .input('FBID', sql.NVarChar, fbid)
+          .input('TOKEN', sql.NVarChar, token)
+          .query(
+            'IF EXISTS(SELECT * FROM [Token] WHERE FBID=@FBID)' +
+              ' UPDATE [User] SET Token=@TOKEN WHERE FBID=@FBID' +
+              ' ELSE' +
+              ' INSERT INTO [Token](FBID,Token) OUTPUT Inserted.FBID,Inserted.Token' +
+              ' VALUES(@FBID,@TOKEN)'
+          );
+
+        console.log(queryResult); //Debug to see
+
+        if (queryResult.rowsAffected != null) {
+          res.send(JSON.stringify({ success: true, message: 'Success' }));
+        }
+      } catch (err) {
+        res.status(500); // Internal server error
+        res.send(JSON.stringify({ success: false, message: err.message }));
+      }
+    } else {
+      res.send(
+        JSON.stringify({
+          success: false,
+          messge: 'Missing Fbid in Body of POST request',
+        })
+      );
+    }
+  }
+});
+
+//RESTAURANTOWNER TABLE
+//POST/GET
+router.get('/restaurantowner', async (req, res, next) => {
+  console.log(req.query);
+  if (req.query.key != API_KEY) {
+    res.send(JSON.stringify({ success: false, message: 'Wrong API key' }));
+  } else {
+    var fbid = req.query.fbid;
+    if (fbid != null) {
+      try {
+        const pool = await poolPromise;
+        const queryResult = await pool
+          .request()
+          .input('fbid', sql.NVarChar, fbid)
+          .query(
+            'SELECT userPhone,name,status,resturantId,fbid FROM [RestaurantOwner] where fbid=@fbid'
+          );
+        if (queryResult.recordset.lenght > 0) {
+          res.send(JSON.stringify({ success: false, message: 'Empty' }));
+        } else {
+          res.send(
+            JSON.stringify({ success: true, result: queryResult.recordset })
+          );
+        }
+      } catch (err) {
+        res.status(500); // Internal server error
+        res.send(JSON.stringify({ success: false, message: err.message }));
+      }
+    } else {
+      res.send(
+        JSON.stringify({ success: false, message: 'Missing fbid in query' })
+      );
+    }
+  }
+});
+
+router.post('/restaurantowner', async (req, res, next) => {
+  console.log(req.body);
+  if (req.body.key != API_KEY) {
+    res.send(JSON.stringify({ success: false, message: 'Wrong API Key' }));
+  } else {
+    var user_phone = req.body.userPhone;
+    var user_name = req.body.userName;
+    var fbid = req.body.fbid;
+
+    if (fbid != null) {
+      try {
+        const pool = await poolPromise;
+        const queryResult = await pool
+          .request()
+          .input('UserPhone', sql.NVarChar, user_phone)
+          .input('UserName', sql.NVarChar, user_name)
+          .input('FBID', sql.NVarChar, fbid)
+          .query(
+            'IF EXISTS(SELECT * FROM [RestaurantOwner] WHERE FBID=@FBID)' +
+              ' UPDATE [User] SET Name=@UserName, UserPhone=@UserPhone WHERE FBID=@FBID' +
+              ' ELSE' +
+              ' INSERT INTO [User](FBID,UserPhone,Name,Address,Status) OUTPUT Inserted.FBID,Inserted.UserPhone,Inserted.Name,Inserted.Address,Inserted.Status' +
+              ' VALUES(@FBID,@UserName,@UserPhone,@UserAddress,0)'
+          );
+
+        console.log(queryResult); //Debug to see
+
+        if (queryResult.rowsAffected != null) {
+          res.send(JSON.stringify({ success: true, message: 'Success' }));
+        }
+      } catch (err) {
+        res.status(500); // Internal server error
+        res.send(JSON.stringify({ success: false, message: err.message }));
+      }
+    } else {
+      res.send(
+        JSON.stringify({
+          success: false,
+          messge: 'Missing Fbid in Body of POST request',
+        })
+      );
+    }
+  }
+});
+
 //USER TABLE
 //POST/GET
 router.get('/user', async (req, res, next) => {
