@@ -60,13 +60,13 @@ router.post('/token', async (req, res, next) => {
         const queryResult = await pool
           .request()
           .input('FBID', sql.NVarChar, fbid)
-          .input('TOKEN', sql.NVarChar, token)
+          .input('Token', sql.NVarChar, token)
           .query(
             'IF EXISTS(SELECT * FROM [Token] WHERE FBID=@FBID)' +
-              ' UPDATE [Token] SET Token=@TOKEN WHERE FBID=@FBID' +
+              ' UPDATE [Token] SET Token=@Token WHERE FBID=@FBID' +
               ' ELSE' +
               ' INSERT INTO [Token](FBID,Token) OUTPUT Inserted.FBID,Inserted.Token' +
-              ' VALUES(@FBID,@TOKEN)'
+              ' VALUES(@FBID,@Token)'
           );
 
         console.log(queryResult); //Debug to see
