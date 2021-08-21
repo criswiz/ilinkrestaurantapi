@@ -2,8 +2,25 @@ const API_KEY = '1234';
 
 var express = require('express');
 const { Float } = require('mssql');
+var jwt = require('jsonwebtoken');
+var exjwt = require('express-jwt');
 var router = express.Router();
 const { poolPromise, sql } = require('../db');
+
+/*
+ * DECLARE SECRET KEY
+ *
+ * */
+const jwtMW = exjwt({
+  secret: 'Sensei_Link_Restaurant_6TrEF48X8720',
+});
+
+/*
+  TEST API WITH JWT
+  */
+router.get('/testjwt', jwtMW, function (req, res) {
+  res.end('JWT working');
+});
 
 /*
     TEST API IS RUNNNIG
