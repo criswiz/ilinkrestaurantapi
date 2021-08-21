@@ -1,4 +1,5 @@
 const API_KEY = '1234';
+var SECRET_KEY = 'Sensei_Link_Restaurant_6TrEF48X8720';
 
 var express = require('express');
 const { Float } = require('mssql');
@@ -12,7 +13,7 @@ const { poolPromise, sql } = require('../db');
  *
  * */
 const jwtMW = exjwt({
-  secret: 'Sensei_Link_Restaurant_6TrEF48X8720',
+  secret: SECRET_KEY,
   algorithms: ['RS256'],
 });
 
@@ -21,6 +22,19 @@ const jwtMW = exjwt({
   */
 router.get('/testjwt', jwtMW, function (req, res) {
   res.end('JWT working');
+});
+
+//REQUEST JWT WITH FIREBASE ID
+router.get('/getkey', async (req, res, next) => {
+  var fbid = req.query.fbid;
+  if (fbid != null) {
+    let token = jwt.sign({ fbid: fbid }, SECRET_KEY, {});
+    res.send(JSON.stringify({ success: true, token: token }));
+  } else {
+    res.send(
+      JSON.stringify({ success: false, message: 'Missing fbid in request' })
+    );
+  }
 });
 
 /*
