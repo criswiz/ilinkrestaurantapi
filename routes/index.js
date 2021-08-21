@@ -14,14 +14,16 @@ const { poolPromise, sql } = require('../db');
  * */
 const jwtMW = exjwt({
   secret: SECRET_KEY,
-  algorithms: ['RS256'],
+  algorithms: ['sha1', 'RS256', 'HS256'],
 });
 
 /*
   TEST API WITH JWT
   */
 router.get('/testjwt', jwtMW, function (req, res) {
-  res.end('JWT working');
+  res.send(
+    JSON.stringify({ success: true, message: 'JSON WEB TOKEN WORKING' })
+  );
 });
 
 //REQUEST JWT WITH FIREBASE ID
