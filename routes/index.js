@@ -13,6 +13,7 @@ const { poolPromise, sql } = require('../db');
  * */
 const jwtMW = exjwt({
   secret: 'Sensei_Link_Restaurant_6TrEF48X8720',
+  algorithms: ['RS256'],
 });
 
 /*
