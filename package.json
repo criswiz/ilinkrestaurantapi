@@ -16,7 +16,6 @@
     "express": "^4.17.1",
     "express-jwt": "^6.1.0",
     "jsonwebtoken": "^8.5.1",
-    "mssql": "^6.3.2",
-    "tedious": "^11.4.0"
+    "mssql": "^6.3.2"
   }
 }
