@@ -21,9 +21,15 @@ const jwtMW = exjwt({
   TEST API WITH JWT
   */
 router.get('/testjwt', jwtMW, function (req, res) {
-  res.send(
-    JSON.stringify({ success: true, message: 'JSON WEB TOKEN WORKING' })
-  );
+  var authorization = req.headers.authorization,
+    decode;
+  try {
+    decode = jwt.verify(authorization.split(' ')[1], SECRET_KEY);
+  } catch (e) {
+    return res.status(401).send('Unauthorized');
+  }
+  var fbid = decode.fbid;
+  res.send(JSON.stringify({ success: true, message: 'FBID: ' + fbid }));
 });
 
 //REQUEST JWT WITH FIREBASE ID
