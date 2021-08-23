@@ -54,35 +54,32 @@ router.get('/', function (req, res) {
 
 //TOKEN TABLE
 //POST/GET
-router.get('/token', async (req, res, next) => {
+router.get('/token', jwtMW, async (req, res, next) => {
   console.log(req.query);
-  if (req.query.key != API_KEY) {
-    res.send(JSON.stringify({ success: false, message: 'Wrong API key' }));
-  } else {
-    var fbid = req.query.fbid;
-    if (fbid != null) {
-      try {
-        const pool = await poolPromise;
-        const queryResult = await pool
-          .request()
-          .input('FBID', sql.NVarChar, fbid)
-          .query('SELECT fbid,token FROM [Token] where fbid=@FBID');
-        if (queryResult.recordset.lenght > 0) {
-          res.send(JSON.stringify({ success: false, message: 'Empty' }));
-        } else {
-          res.send(
-            JSON.stringify({ success: true, result: queryResult.recordset })
-          );
-        }
-      } catch (err) {
-        res.status(500); // Internal server error
-        res.send(JSON.stringify({ success: false, message: err.message }));
+
+  var fbid = req.query.fbid;
+  if (fbid != null) {
+    try {
+      const pool = await poolPromise;
+      const queryResult = await pool
+        .request()
+        .input('FBID', sql.NVarChar, fbid)
+        .query('SELECT fbid,token FROM [Token] where fbid=@FBID');
+      if (queryResult.recordset.lenght > 0) {
+        res.send(JSON.stringify({ success: false, message: 'Empty' }));
+      } else {
+        res.send(
+          JSON.stringify({ success: true, result: queryResult.recordset })
+        );
       }
-    } else {
-      res.send(
-        JSON.stringify({ success: false, message: 'Missing fbid in query' })
-      );
+    } catch (err) {
+      res.status(500); // Internal server error
+      res.send(JSON.stringify({ success: false, message: err.message }));
     }
+  } else {
+    res.send(
+      JSON.stringify({ success: false, message: 'Missing fbid in query' })
+    );
   }
 });
 
