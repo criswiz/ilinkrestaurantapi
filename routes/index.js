@@ -57,7 +57,14 @@ router.get('/', function (req, res) {
 router.get('/token', jwtMW, async (req, res, next) => {
   console.log(req.query);
 
-  var fbid = req.query.fbid;
+  var authorization = req.headers.authorization,
+    decode;
+  try {
+    decode = jwt.verify(authorization.split(' ')[1], SECRET_KEY);
+  } catch (e) {
+    return res.status(401).send('Unauthorized');
+  }
+  var fbid = decode.fbid;
   if (fbid != null) {
     try {
       const pool = await poolPromise;
