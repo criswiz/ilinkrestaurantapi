@@ -90,46 +90,49 @@ router.get('/token', jwtMW, async (req, res, next) => {
   }
 });
 
-router.post('/token', async (req, res, next) => {
+router.post('/token', jwtMW, async (req, res, next) => {
   console.log(req.body);
-  if (req.body.key != API_KEY) {
-    res.send(JSON.stringify({ success: false, message: 'Wrong API Key' }));
-  } else {
-    var fbid = req.body.fbid;
-    var token = req.body.token;
+  var authorization = req.headers.authorization,
+    decode;
+  try {
+    decode = jwt.verify(authorization.split(' ')[1], SECRET_KEY);
+  } catch (e) {
+    return res.status(401).send('Unauthorized');
+  }
+  var fbid = decode.fbid;
+  var token = req.body.token;
 
-    if (fbid != null) {
-      try {
-        const pool = await poolPromise;
-        const queryResult = await pool
-          .request()
-          .input('FBID', sql.NVarChar, fbid)
-          .input('Token', sql.NVarChar, token)
-          .query(
-            'IF EXISTS(SELECT * FROM [Token] WHERE FBID=@FBID)' +
-              ' UPDATE [Token] SET Token=@Token WHERE FBID=@FBID' +
-              ' ELSE' +
-              ' INSERT INTO [Token](FBID,Token) OUTPUT Inserted.FBID,Inserted.Token' +
-              ' VALUES(@FBID,@Token)'
-          );
+  if (fbid != null) {
+    try {
+      const pool = await poolPromise;
+      const queryResult = await pool
+        .request()
+        .input('FBID', sql.NVarChar, fbid)
+        .input('Token', sql.NVarChar, token)
+        .query(
+          'IF EXISTS(SELECT * FROM [Token] WHERE FBID=@FBID)' +
+            ' UPDATE [Token] SET Token=@Token WHERE FBID=@FBID' +
+            ' ELSE' +
+            ' INSERT INTO [Token](FBID,Token) OUTPUT Inserted.FBID,Inserted.Token' +
+            ' VALUES(@FBID,@Token)'
+        );
 
-        console.log(queryResult); //Debug to see
+      console.log(queryResult); //Debug to see
 
-        if (queryResult.rowsAffected != null) {
-          res.send(JSON.stringify({ success: true, message: 'Success' }));
-        }
-      } catch (err) {
-        res.status(500); // Internal server error
-        res.send(JSON.stringify({ success: false, message: err.message }));
+      if (queryResult.rowsAffected != null) {
+        res.send(JSON.stringify({ success: true, message: 'Success' }));
       }
-    } else {
-      res.send(
-        JSON.stringify({
-          success: false,
-          messge: 'Missing Fbid in Body of POST request',
-        })
-      );
+    } catch (err) {
+      res.status(500); // Internal server error
+      res.send(JSON.stringify({ success: false, message: err.message }));
     }
+  } else {
+    res.send(
+      JSON.stringify({
+        success: false,
+        messge: 'Missing Fbid in JWT',
+      })
+    );
   }
 });
 
@@ -137,35 +140,38 @@ router.post('/token', async (req, res, next) => {
 //POST/GET
 router.get('/restaurantowner', async (req, res, next) => {
   console.log(req.query);
-  if (req.query.key != API_KEY) {
-    res.send(JSON.stringify({ success: false, message: 'Wrong API key' }));
-  } else {
-    var fbid = req.query.fbid;
-    if (fbid != null) {
-      try {
-        const pool = await poolPromise;
-        const queryResult = await pool
-          .request()
-          .input('fbid', sql.NVarChar, fbid)
-          .query(
-            'SELECT userPhone,name,status,resturantId,fbid FROM [RestaurantOwner] where fbid=@fbid'
-          );
-        if (queryResult.recordset.lenght > 0) {
-          res.send(JSON.stringify({ success: false, message: 'Empty' }));
-        } else {
-          res.send(
-            JSON.stringify({ success: true, result: queryResult.recordset })
-          );
-        }
-      } catch (err) {
-        res.status(500); // Internal server error
-        res.send(JSON.stringify({ success: false, message: err.message }));
+  var authorization = req.headers.authorization,
+    decode;
+  try {
+    decode = jwt.verify(authorization.split(' ')[1], SECRET_KEY);
+  } catch (e) {
+    return res.status(401).send('Unauthorized');
+  }
+  var fbid = decode.fbid;
+  if (fbid != null) {
+    try {
+      const pool = await poolPromise;
+      const queryResult = await pool
+        .request()
+        .input('fbid', sql.NVarChar, fbid)
+        .query(
+          'SELECT userPhone,name,status,resturantId,fbid FROM [RestaurantOwner] where fbid=@fbid'
+        );
+      if (queryResult.recordset.lenght > 0) {
+        res.send(JSON.stringify({ success: false, message: 'Empty' }));
+      } else {
+        res.send(
+          JSON.stringify({ success: true, result: queryResult.recordset })
+        );
       }
-    } else {
-      res.send(
-        JSON.stringify({ success: false, message: 'Missing fbid in query' })
-      );
+    } catch (err) {
+      res.status(500); // Internal server error
+      res.send(JSON.stringify({ success: false, message: err.message }));
     }
+  } else {
+    res.send(
+      JSON.stringify({ success: false, message: 'Missing fbid in query' })
+    );
   }
 });
 
