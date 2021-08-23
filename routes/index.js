@@ -73,11 +73,11 @@ router.get('/token', jwtMW, async (req, res, next) => {
         .input('FBID', sql.NVarChar, fbid)
         .query('SELECT fbid,token FROM [Token] where fbid=@FBID');
       if (queryResult.recordset.lenght > 0) {
-        res.send(JSON.stringify({ success: false, message: 'Empty' }));
-      } else {
         res.send(
           JSON.stringify({ success: true, result: queryResult.recordset })
         );
+      } else {
+        res.send(JSON.stringify({ success: false, message: 'Empty' }));
       }
     } catch (err) {
       res.status(500); // Internal server error
