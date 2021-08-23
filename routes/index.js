@@ -155,14 +155,14 @@ router.get('/restaurantowner', async (req, res, next) => {
         .request()
         .input('fbid', sql.NVarChar, fbid)
         .query(
-          'SELECT userPhone,name,status,resturantId,fbid FROM [RestaurantOwner] where fbid=@fbid'
+          'SELECT userPhone,name,status,restaurantId,fbid FROM [RestaurantOwner] where fbid=@fbid'
         );
       if (queryResult.recordset.lenght > 0) {
-        res.send(JSON.stringify({ success: false, message: 'Empty' }));
-      } else {
         res.send(
           JSON.stringify({ success: true, result: queryResult.recordset })
         );
+      } else {
+        res.send(JSON.stringify({ success: false, message: 'Empty' }));
       }
     } catch (err) {
       res.status(500); // Internal server error
@@ -170,7 +170,7 @@ router.get('/restaurantowner', async (req, res, next) => {
     }
   } else {
     res.send(
-      JSON.stringify({ success: false, message: 'Missing fbid in query' })
+      JSON.stringify({ success: false, message: 'Missing fbid in JWT' })
     );
   }
 });
