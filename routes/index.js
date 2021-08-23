@@ -85,7 +85,7 @@ router.get('/token', jwtMW, async (req, res, next) => {
     }
   } else {
     res.send(
-      JSON.stringify({ success: false, message: 'Missing fbid in query' })
+      JSON.stringify({ success: false, message: 'Missing fbid in JWT' })
     );
   }
 });
