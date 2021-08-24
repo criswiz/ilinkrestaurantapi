@@ -177,46 +177,49 @@ router.get('/restaurantowner', async (req, res, next) => {
 
 router.post('/restaurantowner', async (req, res, next) => {
   console.log(req.body);
-  if (req.body.key != API_KEY) {
-    res.send(JSON.stringify({ success: false, message: 'Wrong API Key' }));
-  } else {
-    var user_phone = req.body.userPhone;
-    var user_name = req.body.userName;
-    var fbid = req.body.fbid;
+  var authorization = req.headers.authorization,
+    decode;
+  try {
+    decode = jwt.verify(authorization.split(' ')[1], SECRET_KEY);
+  } catch (e) {
+    return res.status(401).send('Unauthorized');
+  }
+  var fbid = decode.fbid;
+  var user_phone = req.body.userPhone;
+  var user_name = req.body.userName;
 
-    if (fbid != null) {
-      try {
-        const pool = await poolPromise;
-        const queryResult = await pool
-          .request()
-          .input('UserPhone', sql.NVarChar, user_phone)
-          .input('UserName', sql.NVarChar, user_name)
-          .input('FBID', sql.NVarChar, fbid)
-          .query(
-            'IF EXISTS(SELECT * FROM [RestaurantOwner] WHERE FBID=@FBID)' +
-              ' UPDATE [User] SET Name=@UserName, UserPhone=@UserPhone WHERE FBID=@FBID' +
-              ' ELSE' +
-              ' INSERT INTO [User](FBID,UserPhone,Name,Address,Status) OUTPUT Inserted.FBID,Inserted.UserPhone,Inserted.Name,Inserted.Address,Inserted.Status' +
-              ' VALUES(@FBID,@UserName,@UserPhone,@UserAddress,0)'
-          );
+  if (fbid != null) {
+    try {
+      const pool = await poolPromise;
+      const queryResult = await pool
+        .request()
+        .input('UserPhone', sql.NVarChar, user_phone)
+        .input('UserName', sql.NVarChar, user_name)
+        .input('FBID', sql.NVarChar, fbid)
+        .query(
+          'IF EXISTS(SELECT * FROM [RestaurantOwner] WHERE FBID=@FBID)' +
+            ' UPDATE [User] SET Name=@UserName, UserPhone=@UserPhone WHERE FBID=@FBID' +
+            ' ELSE' +
+            ' INSERT INTO [User](FBID,UserPhone,Name,Address,Status) OUTPUT Inserted.FBID,Inserted.UserPhone,Inserted.Name,Inserted.Address,Inserted.Status' +
+            ' VALUES(@FBID,@UserName,@UserPhone,@UserAddress,0)'
+        );
 
-        console.log(queryResult); //Debug to see
+      console.log(queryResult); //Debug to see
 
-        if (queryResult.rowsAffected != null) {
-          res.send(JSON.stringify({ success: true, message: 'Success' }));
-        }
-      } catch (err) {
-        res.status(500); // Internal server error
-        res.send(JSON.stringify({ success: false, message: err.message }));
+      if (queryResult.rowsAffected != null) {
+        res.send(JSON.stringify({ success: true, message: 'Success' }));
       }
-    } else {
-      res.send(
-        JSON.stringify({
-          success: false,
-          messge: 'Missing Fbid in Body of POST request',
-        })
-      );
+    } catch (err) {
+      res.status(500); // Internal server error
+      res.send(JSON.stringify({ success: false, message: err.message }));
     }
+  } else {
+    res.send(
+      JSON.stringify({
+        success: false,
+        messge: 'Missing Fbid in Body of POST request',
+      })
+    );
   }
 });
 
