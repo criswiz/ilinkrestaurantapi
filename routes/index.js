@@ -638,6 +638,43 @@ router.get('/addon', jwtMW, async (req, res, next) => {
 
 //ORDER AND ORDER DETAIL TABLE
 //GET / POST
+router.get('/orderdetailbyrestaurant', jwtMW, async (req, res, next) => {
+  {
+    var orderId = req.query.orderId;
+    if (orderId != null) {
+      try {
+        var pool = await poolPromise;
+        var queryResult = await pool
+          .request()
+          .input('OrderId', sql.Int, orderId)
+          .query(
+            'Select OrderDetail.orderId,itemId,quantity,size,addOn,orderFBID,name,description,image' +
+              ' From [OrderDetail] INNER JOIN [Order] ON OrderDetail.orderId = [Order].orderId' +
+              ' INNER JOIN Food ON OrderDetail.itemId = Food.ID' +
+              ' WHERE OrderDetail.orderId=@OrderId'
+          );
+
+        if (queryResult.recordset.lenght > 0) {
+          res.send(JSON.stringify({ success: false, message: 'Empty' }));
+        } else {
+          res.send(
+            JSON.stringify({ success: true, message: queryResult.recordset })
+          );
+        }
+      } catch (error) {
+        res.status(500);
+        res.send(JSON.stringify({ success: false, message: error.message }));
+      }
+    } else {
+      res.send(
+        JSON.stringify({
+          success: false,
+          message: 'Missing Order Id in JWT',
+        })
+      );
+    }
+  }
+});
 
 router.get('/orderbyrestaurant', jwtMW, async (req, res, next) => {
   {
