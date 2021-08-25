@@ -201,8 +201,8 @@ router.post('/restaurantowner', jwtMW, async (req, res, next) => {
           'IF EXISTS(SELECT * FROM [RestaurantOwner] WHERE FBID=@FBID)' +
             ' UPDATE [User] SET Name=@UserName, UserPhone=@UserPhone WHERE FBID=@FBID' +
             ' ELSE' +
-            ' INSERT INTO [User](FBID,UserPhone,Name,Address,Status) OUTPUT Inserted.FBID,Inserted.UserPhone,Inserted.Name,Inserted.Address,Inserted.Status' +
-            ' VALUES(@FBID,@UserName,@UserPhone,@UserAddress,0)'
+            ' INSERT INTO [RestaurantOwner](FBID,UserPhone,Name,Status) OUTPUT Inserted.FBID,Inserted.UserPhone,Inserted.Name,Inserted.Status' +
+            ' VALUES(@FBID,@UserName,@UserPhone,0)'
         );
 
       console.log(queryResult); //Debug to see
