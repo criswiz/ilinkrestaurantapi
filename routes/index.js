@@ -155,7 +155,7 @@ router.get('/restaurantowner', jwtMW, async (req, res, next) => {
         .request()
         .input('fbid', sql.NVarChar, fbid)
         .query(
-          'SELECT userPhone,name,status,restaurantId,fbid FROM [RestaurantOwner] where fbid=@fbid'
+          "SELECT userPhone,name,CASE WHEN=status THEN 'FALSE' ELSE 'TRUE' END as status,restaurantId,fbid FROM [RestaurantOwner] where fbid=@fbid"
         );
       if (queryResult.recordset.lenght > 0) {
         res.send(JSON.stringify({ success: false, message: 'Empty' }));
@@ -638,6 +638,83 @@ router.get('/addon', jwtMW, async (req, res, next) => {
 
 //ORDER AND ORDER DETAIL TABLE
 //GET / POST
+
+router.get('/orderbyrestaurant', jwtMW, async (req, res, next) => {
+  {
+    var restaurantId = req.query.restaurantId;
+    var startIndex = req.query.from;
+    var endIndex = req.query.to;
+    if (restaurantId != null) {
+      try {
+        if (startIndex == null) startIndex = 0; //if user does not submit anything the default is 0
+        if (endIndex == null) endIndex = 10; //
+
+        var pool = await poolPromise;
+        var queryResult = await pool
+          .request()
+          .input('RestaurantId', sql.NVarChar, restaurantId)
+          .input('StartIndex', sql.Int, startIndex)
+          .input('EndIndex', sql.Int, endIndex)
+          .query(
+            'Select * from (Select ROW_NUMBER() OVER(ORDER BY orderId DESC) AS RowNum, orderId,orderFbid,orderPhone,orderName,orderAddress,orderStatus,orderDate,restaurantId,transactionId,cod,totalPrice,numOfItem From [Order] Where restaurantId=@RestaurantId AND numOfItem > 0) AS RowConstrainedResult'
+          );
+
+        if (queryResult.recordset.lenght > 0) {
+          res.send(JSON.stringify({ success: false, message: 'Empty' }));
+        } else {
+          res.send(
+            JSON.stringify({ success: true, message: queryResult.recordset })
+          );
+        }
+      } catch (error) {
+        res.status(500);
+        res.send(JSON.stringify({ success: false, message: error.message }));
+      }
+    } else {
+      res.send(
+        JSON.stringify({
+          success: false,
+          message: 'Missing Order Fbid in JWT',
+        })
+      );
+    }
+  }
+});
+
+router.get('/maxorderbyrestaurant', jwtMW, async (req, res, next) => {
+  {
+    var restaurantId = req.query.restaurantId;
+    if (restaurantId != null) {
+      try {
+        var pool = await poolPromise;
+        var queryResult = await pool
+          .request()
+          .input('RestaurantId', sql.NVarChar, restaurantId)
+          .query(
+            'Select MAX(RowNum) as maxRowNum from (Select ROW_NUMBER() OVER(ORDER BY orderId DESC) AS RowNum, orderId,orderFbid,orderPhone,orderName,orderAddress,orderStatus,orderDate,restaurantId,transactionId,cod,totalPrice,numOfItem From [Order] Where restaurantId=@RestaurantId AND numOfItem > 0) AS RowConstrainedResult'
+          );
+
+        if (queryResult.recordset.lenght > 0) {
+          res.send(JSON.stringify({ success: false, message: 'Empty' }));
+        } else {
+          res.send(
+            JSON.stringify({ success: true, message: queryResult.recordset })
+          );
+        }
+      } catch (error) {
+        res.status(500);
+        res.send(JSON.stringify({ success: false, message: error.message }));
+      }
+    } else {
+      res.send(
+        JSON.stringify({
+          success: false,
+          message: 'Missing Order Fbid in JWT',
+        })
+      );
+    }
+  }
+});
 
 router.get('/order', jwtMW, async (req, res, next) => {
   {
