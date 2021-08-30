@@ -944,14 +944,6 @@ router.post('/updateOrder', jwtMW, async (req, res, next) => {
   var orderId = req.body.orderId;
   var orderDetail;
 
-  try {
-    orderDetail = JSON.parse(req.body.orderDetail);
-  } catch (error) {
-    console.log(error);
-    res.status(500);
-    res.send(JSON.stringify({ success: false, message: error.message }));
-  }
-
   if (orderId != null && orderDetail != null) {
     try {
       const pool = await poolPromise;
@@ -1014,6 +1006,37 @@ router.post('/updateOrder', jwtMW, async (req, res, next) => {
       JSON.stringify({
         success: false,
         messge: 'Missing orderId or orderDetail in JWT',
+      })
+    );
+  }
+});
+
+router.put('/updateOrder', jwtMW, async (req, res, next) => {
+  var orderId = req.body.orderId;
+  var orderStatus = req.body.orderStatus;
+
+  if (orderId != null && orderStatus != null) {
+    try {
+      const pool = await poolPromise;
+      const queryResult = await pool
+        .request()
+        .input('OrderId', sql.Int, orderId)
+        .input('OrderStatus', sql.Int, orderStatus)
+        .query(
+          'UPDATE [Order] SET OrderStatus=@OrderStatus WHERE OrderId=@OrderId'
+        );
+      if (queryResult.rowsAffected != null)
+        res.end(JSON.stringify({ success: true, message: 'Success' }));
+    } catch (error) {
+      console.log(error);
+      res.status(500);
+      res.send(JSON.stringify({ success: false, message: error.message }));
+    }
+  } else {
+    res.send(
+      JSON.stringify({
+        success: false,
+        messge: 'Missing orderId in Put request of JWT',
       })
     );
   }
