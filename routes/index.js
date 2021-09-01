@@ -52,6 +52,123 @@ router.get('/', function (req, res) {
   res.end('API RUNNING');
 });
 
+//DISCOUNT AND USER_DISCOUNT TABLE
+//POST/GET
+router.get('/discount', jwtMW, async (req, res, next) => {
+  console.log(req.query);
+
+  var discount_code = req.query.code;
+  if (discount_code != null) {
+    try {
+      const pool = await poolPromise;
+      const queryResult = await pool
+        .request()
+        .input('code', sql.NChar, discount_code)
+        .query(
+          'SELECT code,value,description FROM [Discount] where code=@code'
+        );
+      if (queryResult.recordset.lenght > 0) {
+        res.send(JSON.stringify({ success: false, message: 'Empty' }));
+      } else {
+        res.send(
+          JSON.stringify({ success: true, result: queryResult.recordset })
+        );
+      }
+    } catch (err) {
+      res.status(500); // Internal server error
+      res.send(JSON.stringify({ success: false, message: err.message }));
+    }
+  } else {
+    res.send(
+      JSON.stringify({
+        success: false,
+        message: 'Missing discount_code in JWT',
+      })
+    );
+  }
+});
+
+router.get('/checkdiscount', jwtMW, async (req, res, next) => {
+  console.log(req.query);
+  var authorization = req.headers.authorization,
+    decode;
+  try {
+    decode = jwt.verify(authorization.split(' ')[1], SECRET_KEY);
+  } catch (e) {
+    return res.status(401).send('Unauthorized');
+  }
+  var fbid = decode.fbid;
+  var discount_code = req.query.code;
+  if (fbid != null) {
+    try {
+      const pool = await poolPromise;
+      const queryResult = await pool
+        .request()
+        .input('fbid', sql.NVarChar, fbid)
+        .input('code', sql.NChar, discount_code)
+        .query('SELECT * FROM [User_Discount] WHERE fbid=@fbid AND code=@code');
+      if (queryResult.recordset.lenght > 0) {
+        res.send(JSON.stringify({ success: true, message: 'NoUse' }));
+      } else {
+        res.send(JSON.stringify({ success: false, message: 'Exists' }));
+      }
+    } catch (err) {
+      res.status(500); // Internal server error
+      res.send(JSON.stringify({ success: false, message: err.message }));
+    }
+  } else {
+    res.send(
+      JSON.stringify({
+        success: false,
+        message: 'Missing fbid in JWT',
+      })
+    );
+  }
+});
+
+router.post('/applydiscount', jwtMW, async (req, res, next) => {
+  console.log(req.body);
+  var authorization = req.headers.authorization,
+    decode;
+  try {
+    decode = jwt.verify(authorization.split(' ')[1], SECRET_KEY);
+  } catch (e) {
+    return res.status(401).send('Unauthorized');
+  }
+  var fbid = decode.fbid;
+  var code = req.body.code;
+
+  if (fbid != null) {
+    try {
+      const pool = await poolPromise;
+      const queryResult = await pool
+        .request()
+        .input('fbid', sql.NVarChar, fbid)
+        .input('code', sql.NChar, code)
+        .query(
+          'INSERT INTO [User_Discount](FBID,Code) OUTPUT Inserted.FBID,Inserted.Code' +
+            ' VALUES(@fbid,@code)'
+        );
+
+      console.log(queryResult); //Debug to see
+
+      if (queryResult.rowsAffected != null) {
+        res.send(JSON.stringify({ success: true, message: 'Success' }));
+      }
+    } catch (err) {
+      res.status(500); // Internal server error
+      res.send(JSON.stringify({ success: false, message: err.message }));
+    }
+  } else {
+    res.send(
+      JSON.stringify({
+        success: false,
+        messge: 'Missing Fbid in JWT',
+      })
+    );
+  }
+});
+
 //TOKEN TABLE
 //POST/GET
 router.get('/token', jwtMW, async (req, res, next) => {
@@ -638,6 +755,30 @@ router.get('/addon', jwtMW, async (req, res, next) => {
 
 //ORDER AND ORDER DETAIL TABLE
 //GET / POST
+router.get('/hotfood', jwtMW, async (req, res, next) => {
+  {
+    try {
+      var pool = await poolPromise;
+      var queryResult = await pool
+        .request()
+        .query(
+          'Select TOP 10 tempTable.itemId, tempTable.name, ROUND((COUNT(tempTable.itemId)*100.0/(Select COUNT(*) FROM OrderDetail)),2) as [percent] FROM (Select itemId, name From Food INNER JOIN OrderDetail ON Food.ID = OrderDetail.ItemId) tempTable GROUP BY tempTable.itemId, tempTable.name ORDER BY [percent] DESC '
+        );
+
+      if (queryResult.recordset.lenght > 0) {
+        res.send(JSON.stringify({ success: false, message: 'Empty' }));
+      } else {
+        res.send(
+          JSON.stringify({ success: true, message: queryResult.recordset })
+        );
+      }
+    } catch (error) {
+      res.status(500);
+      res.send(JSON.stringify({ success: false, message: error.message }));
+    }
+  }
+});
+
 router.get('/orderdetailbyrestaurant', jwtMW, async (req, res, next) => {
   {
     var orderId = req.query.orderId;
@@ -1215,6 +1356,127 @@ router.delete('/favorite', jwtMW, async (req, res, next) => {
         messge: 'Missing fbid in JWT',
       })
     );
+  }
+});
+
+//SHIPPING TABLE
+//GET / POST / DELETE
+
+router.post('/shippingOrder', jwtMW, async (req, res, next) => {
+  var authorization = req.headers.authorization,
+    decode;
+  try {
+    decode = jwt.verify(authorization.split(' ')[1], SECRET_KEY);
+  } catch (e) {
+    return res.status(401).send('Unauthorized');
+  }
+  var orderId = req.body.orderId;
+  let restaurantId = req.body.restaurantId;
+
+  if (orderId != null && restaurantId != null) {
+    try {
+      const pool = await poolPromise;
+      const queryResult = await pool
+        .request()
+        .input('OrderId', sql.Int, orderId)
+        .input('RestaurantId', sql.Int, restaurantId)
+        .query(
+          'INSERT INTO [ShippingOrder]' +
+            '(OrderId,ShippingStatus,ShipperId,RestaurantId )' +
+            'VALUES' +
+            '(@OrderId,1,0,@RestaurantId)'
+        );
+      res.send(JSON.stringify({ success: true, message: 'Success' }));
+    } catch (err) {
+      res.status(500); // Internal server error
+      res.send(JSON.stringify({ success: false, message: err.message }));
+    }
+  } else {
+    res.send(
+      JSON.stringify({
+        success: false,
+        messge: 'Missing orederId, restaurantId in JWT',
+      })
+    );
+  }
+});
+
+router.get('/shippingOrder', jwtMW, async (req, res, next) => {
+  {
+    var restaurantId = req.body.restaurantId;
+    var startIndex = req.body.from;
+    var endIndex = req.body.to;
+
+    if (startIndex == null || isNaN(startIndex)) startIndex = 0;
+    if (endIndex == null || isNaN(endIndex)) endIndex = 10;
+
+    if (restaurantId != null) {
+      try {
+        var pool = await poolPromise;
+        var queryResult = await pool
+          .request()
+          .input('RestaurantId', sql.NVarChar, restaurantId)
+          .input('StartIndex', sql.NVarChar, startIndex)
+          .input('EndIndex', sql.NVarChar, endIndex)
+          .query(
+            "Select * From (SELECT ROW_NUMBER() OVER (ORDER BY [ShippingOrder].OrderId DESC) AS RowNum, [ShippingOrder].orderId,shippingStatus,orderName,orderAddress,orderPhone,orderDate,orderStatus,transactionId,cod,totalPrice,numOfItem From [ShippingOrder] INNER JOIN [Order] ON [ShippingOrder].orderId = [Order].orderId WHERE [ShippingOrder].RestaurantId = @RestaurantId AND shipperId = '0')" +
+              ' AS RowConstrainedResult WHERE RowNum >= @StartIndex AND RowNum <= @EndIndex ORDER BY orderId DESC'
+          );
+
+        if (queryResult.recordset.lenght > 0) {
+          res.send(JSON.stringify({ success: false, message: 'Empty' }));
+        } else {
+          res.send(
+            JSON.stringify({ success: true, result: queryResult.recordset })
+          );
+        }
+      } catch (error) {
+        res.status(500);
+        res.send(JSON.stringify({ success: false, message: error.message }));
+      }
+    } else {
+      res.send(
+        JSON.stringify({
+          success: false,
+          message: 'Missing restaurantId in JWT',
+        })
+      );
+    }
+  }
+});
+
+router.get('/maxorderneedshipbyrestaurant', jwtMW, async (req, res, next) => {
+  {
+    var restaurantId = req.query.restaurantId;
+    if (restaurantId != null) {
+      try {
+        var pool = await poolPromise;
+        var queryResult = await pool
+          .request()
+          .input('RestaurantId', sql.NVarChar, restaurantId)
+          .query(
+            'Select MAX(RowNum) as maxRowNum from (Select ROW_NUMBER() OVER(ORDER BY orderId DESC) AS RowNum From [ShippingOrder] Where restaurantId=@RestaurantId) AS RowConstrainedResult'
+          );
+
+        if (queryResult.recordset.lenght > 0) {
+          res.send(JSON.stringify({ success: false, message: 'Empty' }));
+        } else {
+          res.send(
+            JSON.stringify({ success: true, message: queryResult.recordset })
+          );
+        }
+      } catch (error) {
+        res.status(500);
+        res.send(JSON.stringify({ success: false, message: error.message }));
+      }
+    } else {
+      res.send(
+        JSON.stringify({
+          success: false,
+          message: 'Missing restaurantId  in JWT',
+        })
+      );
+    }
   }
 });
 
