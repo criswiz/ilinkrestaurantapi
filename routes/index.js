@@ -173,15 +173,7 @@ router.post('/applydiscount', jwtMW, async (req, res, next) => {
 //POST/GET
 router.get('/token', jwtMW, async (req, res, next) => {
   console.log(req.query);
-
-  var authorization = req.headers.authorization,
-    decode;
-  try {
-    decode = jwt.verify(authorization.split(' ')[1], SECRET_KEY);
-  } catch (e) {
-    return res.status(401).send('Unauthorized');
-  }
-  var fbid = decode.fbid;
+  var fbid = req.query.fbid;
   if (fbid != null) {
     try {
       const pool = await poolPromise;
