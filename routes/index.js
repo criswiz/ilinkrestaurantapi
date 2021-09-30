@@ -264,7 +264,7 @@ router.get('/restaurantowner', jwtMW, async (req, res, next) => {
         .request()
         .input('fbid', sql.NVarChar, fbid)
         .query(
-          "SELECT userPhone,name,CASE WHEN=status THEN 'FALSE' ELSE 'TRUE' END as status,restaurantId,fbid FROM [RestaurantOwner] where fbid=@fbid"
+          'SELECT userPhone,name, status,restaurantId,fbid FROM [RestaurantOwner] where fbid=@fbid'
         );
       if (queryResult.recordset.lenght > 0) {
         res.send(JSON.stringify({ success: false, message: 'Empty' }));
