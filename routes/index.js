@@ -1195,7 +1195,7 @@ router.get('/favorite', jwtMW, async (req, res, next) => {
           .request()
           .input('fbid', sql.NVarChar, fbid)
           .query(
-            'Select fbid,foodId,restaurantId, foodName, foodImage, price From [Favorite] Where fbid=@fbid '
+            'Select fbid,foodId,restaurantId,restaurantName, foodName, foodImage, price From [Favorite] Where fbid=@fbid '
           );
 
         if (queryResult.recordset.lenght > 0) {
