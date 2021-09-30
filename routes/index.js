@@ -504,7 +504,7 @@ router.get('/nearbyrestaurant', jwtMW, async (req, res, next) => {
           res.send(JSON.stringify({ success: false, message: 'Empty' }));
         } else {
           res.send(
-            JSON.stringify({ success: true, result: queryResult.recordset })
+            JSON.stringify({ success: true, message: queryResult.recordset })
           );
         }
       } catch (error) {
@@ -719,7 +719,7 @@ router.get('/addon', jwtMW, async (req, res, next) => {
           .request()
           .input('foodId', sql.Int, foodId)
           .query(
-            'Select id,description,extraPrice From [Addon] Where id in' +
+            'Select id,name,description,extraPrice From [Addon] Where id in' +
               ' (Select addonId from [Food_Addon] Where foodId=@foodId)'
           );
 
