@@ -1,5 +1,10 @@
+
+//API KEY
 const API_KEY = '1234';
 
+/*
+Imports for express, mssql and database configuration
+*/
 var express = require('express');
 const { Float } = require('mssql');
 var router = express.Router();
@@ -12,11 +17,12 @@ router.get('/', function (req, res) {
   res.end('API RUNNING');
 });
 
-//USER TABLE
+/*USER TABLE*/
 //POST/GET
-
+/*----Get user information---*/
 router.get('/user', async (req, res, next) => {
   console.log(req.query);
+  //Require API key in body of API call 
   if (req.query.key != API_KEY) {
     res.send(JSON.stringify({ success: false, message: 'Wrong API key' }));
   } else {
@@ -49,6 +55,7 @@ router.get('/user', async (req, res, next) => {
   }
 });
 
+/*--Send user data to API and save to database--*/
 router.post('/user', async (req, res, next) => {
   console.log(req.body);
   if (req.body.key != API_KEY) {
