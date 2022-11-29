@@ -1,5 +1,8 @@
+
+//Import MSSQL package to handle database
 const sql = require('mssql');
 
+//Database Config
 var config = {
   user: 'sensei',
   password: '?Churcher1234/',
@@ -13,6 +16,7 @@ var config = {
   type: 'Microsoft.Sql/servers/databases',
 };
 
+//Database connection with config details
 const poolPromise = new sql.ConnectionPool(config)
   .connect()
   .then((pool) => {
